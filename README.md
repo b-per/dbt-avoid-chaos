@@ -1,4 +1,4 @@
-# dbt-no-chaos
+# dbt-avoid-chaos
 
 This repo can be used to configure dbt projects and automatically deploy them.
 
