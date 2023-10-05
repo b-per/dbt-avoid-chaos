@@ -1,0 +1,83 @@
+name: terraform apply on Merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  folder_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      any_modified: ${{ steps.changed-files-specific.outputs.any_modified }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+    - name: Get changed files in the docs folder
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v39
+      with:
+        files: deployments/**
+        json: true
+        quotepath: false
+
+    - name: List all changed files specific
+      run: |
+        echo "${{ steps.changed-files-specific.outputs.all_modified_files }}"
+
+    - name: Determine modified folders
+      id: set-matrix
+      run: |
+        echo "matrix"="{\"files\":$(echo "${{ steps.changed-files-specific.outputs.all_modified_files }}" | jq -c '[.[] | select(startswith("deployments/")) | split("/")[0:2] | join("/") ] | unique' )}" >> $GITHUB_OUTPUT
+
+  terraform_apply:
+    if: ${{ needs.folder_changes.outputs.any_modified == 'true' }}
+    needs: folder_changes
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ matrix.files }}
+    permissions:
+      pull-requests: write
+      contents: read
+    env:
+      PGHOST: ${{ secrets.PGHOST }}
+      PGSSLMODE: ${{ secrets.PGSSLMODE }}
+      PGPORT: ${{ secrets.PGPORT }}
+      PGUSER: ${{ secrets.PGUSER }}
+      PGPASSWORD: ${{ secrets.PGPASSWORD }}
+      PGDATABASE: ${{ secrets.PGDATABASE }}
+      TF_VAR_snowflake_username: ${{ secrets.TF_VAR_snowflake_username }}
+      TF_VAR_snowflake_password: ${{ secrets.TF_VAR_snowflake_password }}
+      TF_VAR_github_token: ${{ secrets.TF_VAR_github_token }}
+      TF_VAR_dbt_token: ${{ secrets.TF_VAR_dbt_token }}
+    strategy:
+      matrix: ${{fromJson(needs.folder_changes.outputs.matrix)}}
+      # 1 ehn using PG as a backend
+      max-parallel: 1
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+    - uses: hashicorp/setup-terraform@v2
+
+    - name: Install cruft
+      id: cruft
+      run: |
+        pip install cruft
+
+    - name: Terraform Init
+      id: init
+      run: |
+        proj=$(echo ${{ matrix.files }} | cut -d'/' -f2)
+        terraform init -backend-config="schema_name=$proj"
+
+    - name: Terraform Apply
+      id: apply
+      run: terraform apply -no-color -auto-approve
+      continue-on-error: true

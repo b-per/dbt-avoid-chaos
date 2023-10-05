@@ -1,0 +1,36 @@
+name: terraform destroy on Manual Action
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'The project to destroy, without "deployments/" in front'
+        required: true
+        type: string
+
+jobs:
+  terraform-destroy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: hashicorp/setup-terraform@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+      - name: Destroy Terraform resources
+        run: |
+          cd deployments/${{ inputs.project }}
+          proj=$(echo ${{ inputs.project }} | cut -d'/' -f2)
+          terraform init -backend-config="schema_name=$proj"
+          terraform destroy -auto-approve
+        env:
+          PGHOST: ${{ secrets.PGHOST }}
+          PGSSLMODE: ${{ secrets.PGSSLMODE }}
+          PGPORT: ${{ secrets.PGPORT }}
+          PGUSER: ${{ secrets.PGUSER }}
+          PGPASSWORD: ${{ secrets.PGPASSWORD }}
+          PGDATABASE: ${{ secrets.PGDATABASE }}
+          TF_VAR_snowflake_username: ${{ secrets.TF_VAR_snowflake_username }}
+          TF_VAR_snowflake_password: ${{ secrets.TF_VAR_snowflake_password }}
+          TF_VAR_github_token: ${{ secrets.TF_VAR_github_token }}
+          TF_VAR_dbt_token: ${{ secrets.TF_VAR_dbt_token }}
