@@ -57,7 +57,7 @@ jobs:
       TF_VAR_dbt_token: ${{ secrets.TF_VAR_dbt_token }}
     strategy:
       matrix: ${{fromJson(needs.folder_changes.outputs.matrix)}}
-      # 1 ehn using PG as a backend
+      # 1 when using PG as a backend
       max-parallel: 1
       fail-fast: false
     steps:
@@ -80,4 +80,3 @@ jobs:
     - name: Terraform Apply
       id: apply
       run: terraform apply -no-color -auto-approve
-      continue-on-error: true
