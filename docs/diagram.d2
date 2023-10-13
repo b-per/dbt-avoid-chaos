@@ -1,0 +1,73 @@
+direction: right
+
+dbt_terraform_modules: dbt-terraform-modules {
+  link: https://github.com/b-per/dbt-terraform-modules
+  Unified TF modules
+  dbt Cloud TF module
+  GitHub TF module
+  Snowflake TF module
+}
+
+dbt_avoid_chaos: this repo - dbt-avoid-chaos {
+  files: {
+    github: ".github/workflows/" {
+      "workflows.yml"
+    }
+
+    deployments: "deployments/" {
+      create project
+      modify project
+    }
+  }
+
+  terraform_plan: terraform plan \n\n 'dry-run'
+  terraform_apply: terraform apply \n\n create resources
+
+  files -> terraform_plan: On PR {
+    style: {
+      stroke: green
+    }
+  }
+  terraform_plan -> terraform_apply: On merge {
+    style: {
+      stroke: green
+    }
+  }
+}
+
+dbt_template_repo: dbt-project-template {
+  link: https://github.com/b-per/dbt-project-template
+  dbt project template in Cruft
+}
+
+dbt Cloud project : {
+  icon: https://seeklogo.com/images/D/dbt-logo-500AB0BAA7-seeklogo.com.png
+  shape: image
+}
+
+GitHub repo : {
+  icon: https://cdn-icons-png.flaticon.com/512/25/25231.png
+  shape: image
+}
+
+Data Warehouse objects : {
+  icon: https://cdn-icons-png.flaticon.com/512/149/149206.png
+  shape: image
+}
+
+
+dbt_avoid_chaos.terraform_apply -> dbt Cloud project
+dbt_avoid_chaos.terraform_apply -> GitHub repo
+dbt_avoid_chaos.terraform_apply -> Data Warehouse objects
+
+dbt_avoid_chaos.terraform_apply -- dbt_template_repo: trigger Cruft template {
+  style: {
+    stroke-dash: 3
+  }
+}
+
+dbt_avoid_chaos.files.deployments -- dbt_terraform_modules: leverages TF modules as templates {
+  style: {
+    stroke-dash: 3
+  }
+}

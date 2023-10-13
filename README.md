@@ -2,6 +2,12 @@
 
 This repo can be used to configure dbt projects and automatically deploy them.
 
+It is part of a talk made at Coalesce 2023 in London.
+
+## Overview of the demo
+
+![Overview](docs/diagram.png)
+
 ## GH actions configured
 
 - on PR creation, if a project was created or modified under deployments, `terraform plan` is executed separately on every folder
