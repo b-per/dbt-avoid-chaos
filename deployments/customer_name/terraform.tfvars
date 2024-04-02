@@ -1,18 +1,18 @@
 # Snowflake config
-snowflake_account = "yda41575"
+snowflake_account = "zna84829"
 raw_database      = "RAW"
 
 # dbt config
-dbt_account_id         = 237
-dbt_host_url           = "https://emea.dbt.com/api"
-dbt_version            = "1.6.0-latest"
-github_installation_id = 41780133
+dbt_account_id         = 17226
+dbt_host_url           = "https://cloud.getdbt.com/api"
+dbt_version            = "1.7.0-latest"
+github_installation_id = 267820
 
 # github config
 cruft_template_url = "https://github.com/b-per/dbt-project-template.git"
 
 # project config
-project_name = "TF Sales"
+project_name = "Customer Name"
 
 database_envs = {
   "DEV" = {
@@ -26,4 +26,4 @@ database_envs = {
     git_branch        = "main"
   }
 }
-developers = ["BPER"]
+developers = ["ANAIS_VAILLANT"]
