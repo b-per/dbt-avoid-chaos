@@ -2,7 +2,7 @@
 
 This repo can be used to configure dbt projects and automatically deploy them.
 
-It is part of a talk made at Coalesce 2023 in London.
+It is part of [a talk made at Coalesce 2023](https://www.youtube.com/watch?v=vkQsGLhqF6I) in London.
 
 ## Overview of the demo
 
